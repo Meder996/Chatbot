@@ -1,0 +1,21 @@
+{
+  "name": "openrouter-chatbot",
+  "version": "1.0.0",
+  "description": "Streaming chatbot powered by OpenRouter (nvidia/nemotron-3.5-super-vl:free)",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "cli": "node cli.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@openrouter/sdk": "^1.4.25",
+    "dotenv": "^18.0.8",
+    "express": "^5.3.0"
+  }
+}
