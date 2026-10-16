@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Nemotron AI — OpenRouter Chat</title>
+<link rel="stylesheet" href="style.css?v=4" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23c4b5fd'/%3E%3Cstop offset='1' stop-color='%237c3aed'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='24' cy='24' r='21' fill='url(%23g)'/%3E%3Cpath d='M24 14l2.2 5.8L32 22l-5.8 2.2L24 30l-2.2-5.8L16 22l5.8-2.2z' fill='white'/%3E%3C/svg%3E" />
+</head>
+<body>
+  <div class="app" id="app">
+    <!-- ============ SIDEBAR ============ -->
+    <aside class="sidebar" id="sidebar">
+      <div class="side-top">
+        <div class="brand">
+          <span class="swirl" aria-hidden="true">
+            <svg viewBox="0 0 48 48"><defs><linearGradient id="lg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c4b5fd"/><stop offset="1" stop-color="#7c3aed"/></linearGradient></defs><circle cx="24" cy="24" r="21" fill="url(#lg1)"/><ellipse cx="24" cy="24" rx="17" ry="7" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="1.6" transform="rotate(-24 24 24)"/><path d="M24 14l2.2 5.8L32 22l-5.8 2.2L24 30l-2.2-5.8L16 22l5.8-2.2z" fill="#fff"/></svg>
+          </span>
+          Nemotron
+        </div>
+        <div class="side-top-actions">
+          <button id="searchBtn" class="icon-only" type="button" title="Search chats">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          </button>
+          <button id="collapseBtn" class="icon-only" type="button" title="Close sidebar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <button id="newChatBtn" class="new-chat" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+        New Chat
+      </button>
+      <input id="searchInput" class="search-input hidden" type="search" placeholder="Search chats…" />
+
+      <nav class="side-nav">
+        <button class="nav-item active" id="chatNav" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
+          Chat
+        </button>
+        <button class="nav-item" id="apiNav" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6"/><path d="m15.5 7.5 3 3L22 7l-3-3"/></svg>
+          API
+          <span id="apiNavBadge" class="nav-badge">…</span>
+        </button>
+        <a class="nav-item" href="https://openrouter.ai/models" target="_blank" rel="noreferrer">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          Models
+        </a>
+      </nav>
+
+      <div class="side-label">Recent chats</div>
+      <div id="convoList" class="convo-list"></div>
+      <div class="side-spacer"></div>
+
+      <div class="api-card">
+        <div class="api-card-head">
+          <span class="swirl tiny" aria-hidden="true">
+            <svg viewBox="0 0 48 48"><defs><linearGradient id="lg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c4b5fd"/><stop offset="1" stop-color="#7c3aed"/></linearGradient></defs><circle cx="24" cy="24" r="21" fill="url(#lg2)"/><path d="M24 14l2.2 5.8L32 22l-5.8 2.2L24 30l-2.2-5.8L16 22l5.8-2.2z" fill="#fff"/></svg>
+          </span>
+          <div class="api-card-titles">
+            <h4 id="apiCardTitle">OpenRouter API</h4>
+            <p id="apiCardText">Checking key…</p>
+          </div>
+        </div>
+        <p class="api-card-model" title="Current model"><code id="modelLabel">nvidia/nemotron-3.5-super-vl:free</code></p>
+        <button id="manageKeyBtn" class="btn dark block" type="button">Manage API Key</button>
+        <p class="api-card-stats" id="sessionStatsText">0 tokens this session</p>
+      </div>
+
+      <div class="user-row">
+        <span class="user-avatar" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </span>
+        <span class="user-name">You</span>
+        <span class="user-plan">Free models</span>
+      </div>
+    </aside>
+
+    <!-- ============ MAIN ============ -->
+    <div class="main-wrap">
+      <header class="main-header">
+        <button id="menuBtn" class="icon-only menu-btn" type="button" title="Open sidebar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
+        </button>
+        <div id="chatTitle" class="chat-title">New Chat</div>
+        <div class="main-actions">
+          <button id="exportBtn" class="icon-only" type="button" title="Export chat as Markdown">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+          </button>
+          <button id="settingsBtn" class="icon-only" type="button" title="Settings & API key">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="4" y1="21" y2="14"/><line x1="4" x2="4" y1="10" y2="3"/><line x1="12" x2="12" y1="21" y2="12"/><line x1="12" x2="12" y1="8" y2="3"/><line x1="20" x2="20" y1="21" y2="16"/><line x1="20" x2="20" y1="12" y2="3"/><line x1="2" x2="6" y1="14" y2="14"/><line x1="10" x2="14" y1="8" y2="8"/><line x1="18" x2="22" y1="16" y2="16"/></svg>
+          </button>
+          <button id="clearBtn" class="icon-only" type="button" title="Clear this chat">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          </button>
+        </div>
+      </header>
+
+      <div id="keyBanner" class="banner hidden">
+        <strong>No API key yet.</strong>&nbsp;Add yours in
+        <button class="linklike" id="bannerSettings" type="button">Settings</button>
+        — or on the server in a <code>.env</code> file. Free key:
+        <a href="https://openrouter.ai/keys" target="_blank" rel="noreferrer">openrouter.ai/keys</a>
+      </div>
+
+      <main id="chat" class="chat">
+        <div class="empty" id="emptyState">
+          <span class="swirl large" aria-hidden="true">
+            <svg viewBox="0 0 48 48"><defs><linearGradient id="lg3" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c4b5fd"/><stop offset="1" stop-color="#7c3aed"/></linearGradient></defs><circle cx="24" cy="24" r="21" fill="url(#lg3)"/><ellipse cx="24" cy="24" rx="17" ry="7" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="1.6" transform="rotate(-24 24 24)"/><path d="M24 14l2.2 5.8L32 22l-5.8 2.2L24 30l-2.2-5.8L16 22l5.8-2.2z" fill="#fff"/></svg>
+          </span>
+          <p class="welcome-sub">Welcome to Nemotron AI</p>
+          <h2 class="welcome-title">How Can I Assist You?</h2>
+          <div class="suggest-grid">
+            <button class="suggest-card" type="button" data-prompt="Write a todo list for my day">
+              <span>Write a todo list for my day</span>
+              <span class="suggest-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7Z"/><path d="M13 2v7a1 1 0 0 0 1 1h7"/><path d="m9 16 2 2 4-4"/></svg></span>
+            </button>
+            <button class="suggest-card" type="button" data-prompt="How many r's are in the word strawberry?">
+              <span>How many r's are in the word "strawberry"?</span>
+              <span class="suggest-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/></svg></span>
+            </button>
+            <button class="suggest-card" type="button" data-prompt="Write a Python function to reverse a linked list">
+              <span>Write a Python function to reverse a linked list</span>
+              <span class="suggest-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></span>
+            </button>
+          </div>
+        </div>
+      </main>
+
+      <button id="scrollBtn" class="scroll-btn hidden" type="button" title="Scroll to latest">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+      </button>
+
+      <footer class="composer-wrap">
+        <div id="statusLine" class="status-line hidden"><span class="pulse"></span><span id="statusText"></span></div>
+        <div id="attachPreview" class="attach-preview hidden">
+          <img id="attachImg" alt="attachment preview" />
+          <span id="attachName"></span>
+          <button id="attachRemove" class="btn small" type="button">Remove</button>
+        </div>
+        <form id="composer" class="composer-box">
+          <textarea id="input" rows="1" placeholder="Ask AI anything or write your request…"></textarea>
+          <div class="composer-bottom">
+            <div class="composer-tools">
+              <label class="tool-btn" title="Attach an image (vision)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+                <input id="fileInput" type="file" accept="image/*" hidden />
+              </label>
+              <button id="micBtn" class="tool-btn" type="button" title="Voice input">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
+              </button>
+              <select id="skillSelect" class="pill-select" title="Skill — Auto detects the best one as you type"></select>
+              <select id="effortSelect" class="pill-select" title="Reasoning effort">
+                <option value="auto">Reasoning: Auto</option>
+                <option value="high">Reasoning: High</option>
+                <option value="medium">Reasoning: Med</option>
+                <option value="low">Reasoning: Low</option>
+              </select>
+              <span id="autoSkillHint" class="auto-hint"></span>
+            </div>
+            <div class="composer-actions">
+              <select id="modelSelectMain" class="model-pill" title="Model">
+                <option value="nvidia/nemotron-3.5-super-vl:free">Nemotron 3.5 VL · free</option>
+                <option value="nvidia/nemotron-3-super-120b-a12b:free">Nemotron 3 Super · free</option>
+                <option value="openai/gpt-oss-120b:free">GPT-OSS 120B · free</option>
+                <option value="meta-llama/llama-3.3-70b-instruct:free">Llama 3.3 70B · free</option>
+                <option value="google/gemma-3-27b-it:free">Gemma 3 27B · free</option>
+              </select>
+              <button id="stopBtn" class="btn stop hidden" type="button">Stop</button>
+              <button id="sendBtn" class="btn send" type="submit">
+                Send
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+              </button>
+            </div>
+          </div>
+        </form>
+        <p class="hint">Enter to send · Shift+Enter for new line · Auto-saves in this browser</p>
+      </footer>
+    </div>
+  </div>
+
+  <!-- ============ SETTINGS / API KEY ============ -->
+  <dialog id="settingsDialog" class="dialog">
+    <form method="dialog" class="dialog-body" id="settingsForm">
+      <h3>Settings &amp; API Key</h3>
+      <div class="howto">
+        <p><strong>Put your API key in the app — pick one:</strong></p>
+        <ol>
+          <li><strong>Here (browser):</strong> paste the key below and Save. Stored only in this browser.</li>
+          <li><strong>Server <code>.env</code>:</strong> a file named <code>.env</code> next to <code>server.js</code> containing <code>OPENROUTER_API_KEY=sk-or-v1-...</code>, then restart (<code>npm start</code>).</li>
+          <li><strong>Environment:</strong> <code>export OPENROUTER_API_KEY=sk-or-v1-...</code> before <code>npm start</code>.</li>
+        </ol>
+        <p class="muted small">Free key: <a href="https://openrouter.ai/keys" target="_blank" rel="noreferrer">openrouter.ai/keys</a>. Never commit a key — <code>.env</code> is git-ignored.</p>
+      </div>
+      <label>OpenRouter API key <span class="muted">(optional if set on the server)</span>
+        <span class="key-row">
+          <input id="apiKeyInput" type="password" placeholder="sk-or-v1-..." autocomplete="off" />
+          <button id="toggleKeyBtn" class="btn ghost" type="button">Show</button>
+        </span>
+      </label>
+      <label>Model
+        <select id="modelSelect">
+          <option value="nvidia/nemotron-3.5-super-vl:free">nvidia/nemotron-3.5-super-vl:free (vision)</option>
+          <option value="nvidia/nemotron-3-super-120b-a12b:free">nvidia/nemotron-3-super-120b-a12b:free</option>
+          <option value="openai/gpt-oss-120b:free">openai/gpt-oss-120b:free</option>
+          <option value="meta-llama/llama-3.3-70b-instruct:free">meta-llama/llama-3.3-70b-instruct:free</option>
+          <option value="google/gemma-3-27b-it:free">google/gemma-3-27b-it:free</option>
+        </select>
+      </label>
+      <label class="switch-row">
+        <span>Auto model fallback <span class="muted">— try the next free model if one is busy</span></span>
+        <span class="switch"><input id="fallbackToggle" type="checkbox" checked /><span class="track"></span></span>
+      </label>
+      <label>Custom system prompt <span class="muted">(added on top of the selected Skill)</span>
+        <textarea id="systemInput" rows="3" placeholder="You are a helpful assistant…"></textarea>
+      </label>
+      <div class="dialog-actions">
+        <button class="btn ghost" value="cancel" type="button" id="settingsCancel">Cancel</button>
+        <button class="btn dark" id="settingsSave" type="submit">Save</button>
+      </div>
+    </form>
+  </dialog>
+
+<script src="app.js?v=4"></script>
+</body>
+</html>
